@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: chat-backend
+  namespace: chat-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: chat-backend
+
+  template:
+    metadata:
+      labels:
+        app: chat-backend
+
+    spec:
+      containers:
+        - name: chat-backend
+
+          image: mukesh581/chat_backend_app_1:v2
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 5001
+              protocol: TCP
+
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "5001"
+            - name: MONGODB_URI
+              value: "mongodb://root:root@chat-mongodb-service:27017/chatapp?authSource=admin"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false

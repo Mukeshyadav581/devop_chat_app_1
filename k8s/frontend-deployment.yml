@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: chat-frontend
+  namespace: chat-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: chat-frontend
+
+  template:
+    metadata:
+      labels:
+        app: chat-frontend
+
+    spec:
+      containers:
+        - name: chat-frontend
+
+          image: mukesh581/chat_frontend:v1
+
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          livenessProbe:
+            tcpSocket:
+              port: 80
+
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            tcpSocket:
+              port: 80
+
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
